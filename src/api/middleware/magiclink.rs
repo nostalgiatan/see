@@ -22,6 +22,7 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
+use chrono::Utc;
 use dashmap::DashMap;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
@@ -44,10 +45,13 @@ pub struct MagicLinkConfig {
 
 impl Default for MagicLinkConfig {
     fn default() -> Self {
+        // Warning: Default secret should be changed in production
+        tracing::warn!("Using default MagicLink secret - CHANGE THIS IN PRODUCTION!");
+        
         Self {
             enabled: true,
             expiration: 300, // 5 minutes
-            secret: "change_me_in_production".to_string(),
+            secret: format!("magic_link_default_secret_{}", Uuid::new_v4()),
         }
     }
 }
@@ -82,13 +86,15 @@ impl MagicLinkState {
 
     /// 生成新的魔法链接令牌
     pub fn generate_token(&self, purpose: String) -> String {
-        let token = Uuid::new_v4().to_string();
+        // 生成随机UUID
+        let uuid = Uuid::new_v4().to_string();
         
-        // 计算带密钥的哈希
+        // 使用密钥、UUID和时间戳计算安全哈希作为令牌
         let mut hasher = Sha256::new();
-        hasher.update(token.as_bytes());
+        hasher.update(uuid.as_bytes());
         hasher.update(self.config.secret.as_bytes());
-        let hash = format!("{:x}", hasher.finalize());
+        hasher.update(Utc::now().timestamp().to_string().as_bytes());
+        let token = format!("{:x}", hasher.finalize());
         
         let info = MagicLinkInfo {
             created_at: Instant::now(),
@@ -96,18 +102,18 @@ impl MagicLinkState {
             used: false,
         };
         
-        self.links.insert(hash.clone(), info);
+        self.links.insert(token.clone(), info);
         
         // 启动清理任务
         let links = self.links.clone();
         let expiration = self.config.expiration;
-        let hash_clone = hash.clone();
+        let token_clone = token.clone();
         tokio::spawn(async move {
             tokio::time::sleep(Duration::from_secs(expiration + 60)).await;
-            links.remove(&hash_clone);
+            links.remove(&token_clone);
         });
         
-        hash
+        token
     }
 
     /// 验证魔法链接令牌

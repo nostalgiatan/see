@@ -145,9 +145,14 @@ impl MetricsCollector {
             metrics.failed_requests += 1;
         }
         
-        // 更新平均响应时间
-        let total_time = metrics.avg_response_time_ms * (metrics.total_requests - 1) as f64;
-        metrics.avg_response_time_ms = (total_time + response_time_ms) / metrics.total_requests as f64;
+        // 更新平均响应时间（使用增量平均算法）
+        if metrics.total_requests == 1 {
+            metrics.avg_response_time_ms = response_time_ms;
+        } else {
+            let prev_total = (metrics.total_requests - 1) as f64;
+            metrics.avg_response_time_ms = 
+                (metrics.avg_response_time_ms * prev_total + response_time_ms) / metrics.total_requests as f64;
+        }
     }
 
     /// 记录限流

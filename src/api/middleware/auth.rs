@@ -26,6 +26,7 @@ use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation}
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use uuid::Uuid;
 
 /// 认证配置
 #[derive(Debug, Clone)]
@@ -45,9 +46,12 @@ pub struct AuthConfig {
 
 impl Default for AuthConfig {
     fn default() -> Self {
+        // Warning: Default secret should be changed in production
+        tracing::warn!("Using default JWT secret - CHANGE THIS IN PRODUCTION!");
+        
         Self {
             enabled: false,
-            jwt_secret: "change_me_in_production".to_string(),
+            jwt_secret: format!("jwt_default_secret_{}", Uuid::new_v4()),
             jwt_expiration: 3600, // 1 hour
             api_keys: Vec::new(),
         }

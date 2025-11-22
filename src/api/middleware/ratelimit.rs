@@ -89,11 +89,15 @@ impl RateLimiterState {
         self.ip_limiters
             .entry(ip)
             .or_insert_with(|| {
+                // 每个IP的限流为全局的10%，但至少1请求/秒
+                let per_ip_rate = std::cmp::max(1, self.config.requests_per_second / 10);
+                let per_ip_burst = std::cmp::max(2, self.config.burst_size / 10);
+                
                 let quota = Quota::per_second(
-                    NonZeroU32::new(self.config.requests_per_second / 10).unwrap_or(NonZeroU32::new(10).unwrap())
+                    NonZeroU32::new(per_ip_rate).unwrap()
                 )
                 .allow_burst(
-                    NonZeroU32::new(self.config.burst_size / 10).unwrap_or(NonZeroU32::new(20).unwrap())
+                    NonZeroU32::new(per_ip_burst).unwrap()
                 );
                 Arc::new(RateLimiter::direct(quota))
             })
