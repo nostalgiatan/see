@@ -16,12 +16,9 @@
 
 use pyo3::prelude::*;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
-use crate::api::{ApiInterface, ServerConfig};
+use crate::api::ApiInterface;
 use crate::search::SearchConfig;
-use crate::net::{NetworkInterface, types::NetworkConfig};
-use crate::cache::{CacheInterface, types::CacheImplConfig};
 use crate::api::network::{NetworkConfig as ApiNetworkConfig, NetworkMode};
 
 /// Python bindings for API server
@@ -61,7 +58,7 @@ impl PyApiServer {
                 format!("Failed to create runtime: {}", e)
             ))?;
         
-        let mode = network_mode.clone().unwrap_or_else(|| "internal".to_string());
+        let mode = network_mode.unwrap_or_else(|| "internal".to_string());
         let network_mode_enum = match mode.as_str() {
             "internal" => NetworkMode::Internal,
             "external" => NetworkMode::External,
@@ -74,15 +71,8 @@ impl PyApiServer {
         };
         
         let api = runtime.block_on(async {
-            let mut network_config = NetworkConfig::default();
-            network_config.pool.max_idle_connections = 200;
-            
-            let _network = Arc::new(NetworkInterface::new(network_config)
-                .map_err(|e| format!("Network error: {}", e))?);
-            let _cache = Arc::new(RwLock::new(CacheInterface::new(CacheImplConfig::default())
-                .map_err(|e| format!("Cache error: {}", e))?));
-            
             // Create API interface with network configuration
+            // Note: network and cache are created by the ApiInterface internally
             let search_config = SearchConfig::default();
             let search = Arc::new(crate::search::SearchInterface::new(search_config)
                 .map_err(|e| format!("Search error: {}", e))?);
