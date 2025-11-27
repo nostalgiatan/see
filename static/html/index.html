@@ -51,7 +51,26 @@
         .tagline {
             color: #8892b0;
             font-size: 1.1rem;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
+        }
+
+        .repo-link {
+            margin-bottom: 30px;
+        }
+
+        .repo-link a {
+            color: #4facfe;
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .repo-link a:hover {
+            background: rgba(79, 172, 254, 0.1);
+            border-color: #4facfe;
         }
 
         /* Search Box */
@@ -154,18 +173,22 @@
             display: block;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(79, 172, 254, 0.2);
-            border-top-color: #4facfe;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .loading-dots {
+            display: inline-block;
+            color: #4facfe;
+            font-size: 1.2rem;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
         }
 
         /* Results */
@@ -202,6 +225,10 @@
             padding: 20px;
             margin-bottom: 15px;
             transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
 
         .result-item:hover {
@@ -213,16 +240,7 @@
         .result-title {
             font-size: 1.2rem;
             margin-bottom: 8px;
-        }
-
-        .result-title a {
             color: #4facfe;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .result-title a:hover {
-            color: #00f2fe;
         }
 
         .result-url {
@@ -324,38 +342,6 @@
             text-decoration: underline;
         }
 
-        /* Features */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 40px 0;
-        }
-
-        .feature {
-            text-align: center;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            border: 1px solid rgba(79, 172, 254, 0.1);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 12px;
-        }
-
-        .feature-title {
-            color: #4facfe;
-            font-size: 1rem;
-            margin-bottom: 8px;
-        }
-
-        .feature-desc {
-            color: #8892b0;
-            font-size: 0.85rem;
-        }
-
         /* Responsive */
         @media (max-width: 600px) {
             .logo {
@@ -386,7 +372,10 @@
     <div class="container">
         <header>
             <h1 class="logo">🌊 SeeSea</h1>
-            <p class="tagline">隐私保护型元搜索引擎 - 多引擎聚合，智能排序</p>
+            <p class="tagline">免费、开源、强大的搜索引擎</p>
+            <div class="repo-link">
+                <a href="https://github.com/nostalgiatan/see" target="_blank" rel="noopener noreferrer">📦 GitHub 仓库</a>
+            </div>
         </header>
 
         <main>
@@ -419,8 +408,7 @@
             </div>
 
             <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>正在搜索多个引擎...</p>
+                <p class="loading-dots">正在搜索</p>
             </div>
 
             <div class="error" id="error">
@@ -438,29 +426,6 @@
                     <button id="prevPage" disabled>← 上一页</button>
                     <span class="page-info" id="pageInfo">第 1 页</span>
                     <button id="nextPage" disabled>下一页 →</button>
-                </div>
-            </div>
-
-            <div class="features" id="features">
-                <div class="feature">
-                    <div class="feature-icon">🔒</div>
-                    <h3 class="feature-title">隐私保护</h3>
-                    <p class="feature-desc">不记录搜索历史，保护您的隐私</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">🚀</div>
-                    <h3 class="feature-title">多引擎聚合</h3>
-                    <p class="feature-desc">整合多个搜索引擎的结果</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <h3 class="feature-title">智能排序</h3>
-                    <p class="feature-desc">基于相关性智能排序结果</p>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">🌐</div>
-                    <h3 class="feature-title">开源免费</h3>
-                    <p class="feature-desc">完全开源，免费使用</p>
                 </div>
             </div>
         </main>
@@ -490,7 +455,6 @@
         const resultsList = document.getElementById('resultsList');
         const resultsCount = document.getElementById('resultsCount');
         const resultsTime = document.getElementById('resultsTime');
-        const features = document.getElementById('features');
         const prevPageBtn = document.getElementById('prevPage');
         const nextPageBtn = document.getElementById('nextPage');
         const pageInfo = document.getElementById('pageInfo');
@@ -508,7 +472,6 @@
             loading.classList.add('active');
             error.classList.remove('active');
             resultsContainer.classList.remove('active');
-            features.style.display = 'none';
             searchButton.disabled = true;
 
             try {
@@ -549,8 +512,11 @@
 
             if (data.results && data.results.length > 0) {
                 data.results.forEach((item, index) => {
-                    const resultDiv = document.createElement('div');
-                    resultDiv.className = 'result-item';
+                    const resultLink = document.createElement('a');
+                    resultLink.className = 'result-item';
+                    resultLink.href = item.url || '#';
+                    resultLink.target = '_blank';
+                    resultLink.rel = 'noopener noreferrer';
                     
                     const title = escapeHtml(item.title || 'Untitled');
                     const url = item.url || '#';
@@ -558,18 +524,16 @@
                     const engine = item.engine || 'unknown';
                     const score = item.score ? item.score.toFixed(3) : '0.000';
 
-                    resultDiv.innerHTML = `
-                        <h3 class="result-title">
-                            <a href="${url}" target="_blank" rel="noopener noreferrer">${title}</a>
-                        </h3>
-                        <div class="result-url">${url}</div>
+                    resultLink.innerHTML = `
+                        <h3 class="result-title">${title}</h3>
+                        <div class="result-url">${escapeHtml(url)}</div>
                         <p class="result-description">${description}</p>
                         <div class="result-meta">
                             <span class="result-engine">${engine}</span>
                             <span class="result-score">⭐ 评分: ${score}</span>
                         </div>
                     `;
-                    resultsList.appendChild(resultDiv);
+                    resultsList.appendChild(resultLink);
                 });
             } else {
                 resultsList.innerHTML = '<p style="text-align: center; color: #8892b0; padding: 40px;">没有找到相关结果</p>';
