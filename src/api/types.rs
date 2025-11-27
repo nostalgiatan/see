@@ -128,6 +128,8 @@ impl ApiSearchRequest {
                 // 根据引擎数量限制引擎列表
                 // 引擎按默认顺序排列（配置中已按延迟优化排序）
                 let count = count as usize;
+                // 只有当 count > 0 且 count 小于总引擎数时才限制
+                // 否则返回全部引擎
                 if count > 0 && count < all_engines.len() {
                     all_engines.into_iter().take(count).collect()
                 } else {
