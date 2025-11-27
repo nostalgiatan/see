@@ -49,6 +49,7 @@ impl Default for EngineListConfig {
             "yandex".to_string(),
             "bing".to_string(),
             "baidu".to_string(),
+            "so".to_string(),
             "sogou".to_string(),
             "bilibili".to_string(),
             "unsplash".to_string(),
@@ -65,6 +66,7 @@ impl Default for EngineListConfig {
             "yandex".to_string(),
             "bing".to_string(),
             "baidu".to_string(),
+            "so".to_string(),
             "sogou".to_string(),
             "bilibili".to_string(),
             "unsplash".to_string(),
@@ -75,6 +77,7 @@ impl Default for EngineListConfig {
             "sogou_videos".to_string(),
             "sogou_wechat".to_string(),
             "xinhua".to_string(),
+            "quark".to_string(),
         ];
 
         #[cfg(not(feature = "python"))]
@@ -82,6 +85,7 @@ impl Default for EngineListConfig {
             "yandex".to_string(),
             "bing".to_string(),
             "baidu".to_string(),
+            "so".to_string(),
             "sogou".to_string(),
             "bilibili".to_string(),
             "unsplash".to_string(),
@@ -98,6 +102,7 @@ impl Default for EngineListConfig {
             "yandex".to_string(),
             "bing".to_string(),
             "baidu".to_string(),
+            "so".to_string(),
             "sogou".to_string(),
             "bilibili".to_string(),
             "unsplash".to_string(),
@@ -108,6 +113,7 @@ impl Default for EngineListConfig {
             "sogou_videos".to_string(),
             "sogou_wechat".to_string(),
             "xinhua".to_string(),
+            "quark".to_string(),
         ];
 
         Self {
