@@ -512,11 +512,15 @@
             searchButton.disabled = true;
 
             try {
-                // Build URL
-                let url = `/api/search?q=${encodeURIComponent(query)}&page=${page}&page_size=${pageSize}`;
+                // Build URL using URLSearchParams for safety
+                const params = new URLSearchParams();
+                params.append('q', query);
+                params.append('page', page.toString());
+                params.append('page_size', pageSize.toString());
                 if (engineCount) {
-                    url += `&engine_count=${engineCount}`;
+                    params.append('engine_count', engineCount);
                 }
+                const url = `/api/search?${params.toString()}`;
 
                 const response = await fetch(url);
                 if (!response.ok) {

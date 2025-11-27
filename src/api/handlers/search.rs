@@ -76,12 +76,12 @@ async fn execute_search(
     // 获取引擎列表
     let engines = params.get_engines();
 
-    // 创建搜索请求 - 不限制最大结果数，返回所有结果
+    // 创建搜索请求 - 设置合理的最大结果数以防止资源耗尽
     let request = SearchRequest {
         query: search_query,
         engines,
         timeout: None,
-        max_results: None, // 不限制结果数，让前端分页处理
+        max_results: Some(1000), // 限制最大结果数为1000
         force: false,
         cache_timeline: Some(3600),
     };
